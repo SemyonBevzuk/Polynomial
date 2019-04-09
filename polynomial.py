@@ -155,6 +155,12 @@ class Polynomial:
         else:
             raise TypeError('Invalid argument in ==. Need Polynomial.')
 
+    def __ne__(self, other):
+        if isinstance(other, Polynomial):
+            return self.coeffs != other.coeffs
+        else:
+            raise TypeError('Invalid argument in !=. Need Polynomial.')
+
     def __neg__(self):
         return Polynomial([-a for a in self.coeffs])
 

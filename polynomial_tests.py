@@ -317,6 +317,10 @@ class TestPolynomialNe(unittest.TestCase):
         p2 = Polynomial([3, 2, 1])
         self.assertTrue(p2 != p1)
 
+    def test_invalid_argument(self):
+        p = Polynomial([1, 2, 3])
+        self.assertRaises(TypeError, p.__ne__, 'abc')
+
 
 class TestPolynomialNeg(unittest.TestCase):
     def test_created_new_polynomial(self):
