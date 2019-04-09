@@ -6,14 +6,14 @@ class TestPolynomialInit(unittest.TestCase):
     def test_empty(self):
         correct_answer = (0, [0])
         p = Polynomial()
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_with_list(self):
         list_coefficients = [1, 2, 3]
         correct_answer = (2, list_coefficients)
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_with_garbage_list(self):
@@ -24,7 +24,7 @@ class TestPolynomialInit(unittest.TestCase):
         tuple_coefficients = (1, 2, 3)
         correct_answer = (2, list(tuple_coefficients))
         p = Polynomial(tuple_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_with_garbage_tuple(self):
@@ -35,42 +35,42 @@ class TestPolynomialInit(unittest.TestCase):
         tuple_coefficients = ()
         correct_answer = (0, [0])
         p = Polynomial(tuple_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_empty_list(self):
         list_coefficients = []
         correct_answer = (0, [0])
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_constant(self):
         list_coefficients = [1, ]
         correct_answer = (0, list_coefficients)
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_second_degree(self):
         list_coefficients = [3, 2, 1]
         correct_answer = (2, list_coefficients)
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_list_with_zeros(self):
         list_coefficients = [0, 0, 0]
         correct_answer = (0, [0])
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_list_with_zeros_in_head(self):
         list_coefficients = [0, 0, 0, 1, 0, 0, 1]
         correct_answer = (3, [1, 0, 0, 1])
         p = Polynomial(list_coefficients)
-        answer = (p.degree(), p.get_coefficients())
+        answer = (p.degree(), p.coeffs)
         self.assertEqual(correct_answer, answer)
 
     def test_invalid_argument_string(self):
@@ -83,13 +83,13 @@ class TestPolynomialInit(unittest.TestCase):
         list_coefficients = [1, 2, 3]
         p1 = Polynomial(list_coefficients)
         p2 = Polynomial(p1)
-        self.assertEqual(p1.get_coefficients(), p2.get_coefficients())
+        self.assertEqual(p1.coeffs, p2.coeffs)
 
     def test_polynomial_not_equal_lists_coefficients(self):
         list_coefficients = [3, 2, 1]
         p1 = Polynomial(list_coefficients)
         p2 = Polynomial(p1)
-        self.assertIsNot(p1.get_coefficients(), p2.get_coefficients())
+        self.assertIsNot(p1.coeffs, p2.coeffs)
 
 
 class TestPolynomialStr(unittest.TestCase):
@@ -126,6 +126,12 @@ class TestPolynomialStr(unittest.TestCase):
     def test_mixed_not_full_polynomial_degree_1(self):
         correct_answer = '- 10x'
         p = Polynomial([-10, 0])
+        answer = str(p)
+        self.assertEqual(correct_answer, answer)
+
+    def test_empty_polynomial(self):
+        correct_answer = '0'
+        p = Polynomial()
         answer = str(p)
         self.assertEqual(correct_answer, answer)
 
@@ -240,6 +246,38 @@ class TestPolynomialSetitem(unittest.TestCase):
         self.assertRaises(TypeError, p.__setitem__, 3, 0.1)
 
 
+class TestPolynomialGetattr(unittest.TestCase):
+    def test_correct_attribute(self):
+        list_coefficients = [4, 3, 2, 1]
+        p = Polynomial(list_coefficients)
+        self.assertEqual(list_coefficients, p.coeffs)
+        AttributeError
+
+    def test_incorrect_attribute(self):
+        p = Polynomial([4, 3, 2, 1])
+        self.assertRaises(AttributeError, p.__getattr__, 'abc')
+
+
+class TestPolynomialSetattr(unittest.TestCase):
+    def test_correct_all(self):
+        list_coefficients = [4, 3, 2, 1]
+        p = Polynomial()
+        p.coeffs = list_coefficients
+        self.assertEqual(list_coefficients, p.coeffs)
+
+    def test_incorrect_attribute(self):
+        p = Polynomial([4, 3, 2, 1])
+        self.assertRaises(AttributeError, p.__setattr__, 'not_coeffs', [1, 2, 3])
+
+    def test_incorrect_type(self):
+        p = Polynomial([4, 3, 2, 1])
+        self.assertRaises(TypeError, p.__setattr__, 'coeffs', 123)
+
+    def test_incorrect_value(self):
+        p = Polynomial([4, 3, 2, 1])
+        self.assertRaises(ValueError, p.__setattr__, 'coeffs', [4, 'abc', []])
+
+
 class TestPolynomialEq(unittest.TestCase):
     def test_equal_polynomial(self):
         list_coefficients = [4, 3, 2, 1]
@@ -284,24 +322,24 @@ class TestPolynomialNeg(unittest.TestCase):
     def test_created_new_polynomial(self):
         p1 = Polynomial([4, -3, -2, 1])
         p2 = -p1
-        self.assertIsNot(p1.get_coefficients(), p2.get_coefficients())
+        self.assertIsNot(p1.coeffs, p2.coeffs)
 
     def test_coefficients_changed_correctly(self):
         p1 = Polynomial([4, -3, -2, 1])
         p2 = -p1
-        self.assertEqual([-4, 3, 2, -1], p2.get_coefficients())
+        self.assertEqual([-4, 3, 2, -1], p2.coeffs)
 
 
 class TestPolynomialPos(unittest.TestCase):
     def test_not_created_new_polynomial(self):
         p1 = Polynomial([4, -3, -2, 1])
         p2 = +p1
-        self.assertIs(p1.get_coefficients(), p2.get_coefficients())
+        self.assertIs(p1.coeffs, p2.coeffs)
 
     def test_coefficients_changed_correctly(self):
         p1 = Polynomial([4, -3, -2, 1])
         p2 = +p1
-        self.assertEqual([4, -3, -2, 1], p2.get_coefficients())
+        self.assertEqual([4, -3, -2, 1], p2.coeffs)
 
 
 class TestPolynomialZipTwoPolynomial(unittest.TestCase):

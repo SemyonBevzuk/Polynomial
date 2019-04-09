@@ -1,6 +1,7 @@
 class Polynomial:
-    def get_coefficients(self):
-        return self.__coefficients
+    #def get_coefficients(self):
+    #    return self.__coefficients
+    #__coefficients = [0]
 
     def degree(self):
         return len(self.__coefficients) - 1
@@ -10,7 +11,7 @@ class Polynomial:
             self.__coefficients = [0]
         elif isinstance(args[0], (tuple, list, Polynomial)):
             if isinstance(args[0], Polynomial):
-                self.__coefficients = [a for a in args[0].get_coefficients()]
+                self.__coefficients = [a for a in args[0].coeffs]
             elif args[0] or len(args[0]) != 0:
                 if self.__is_list_correct(list(args[0])):
                     self.__coefficients = self.__remove_zeros_list(list(args[0]))
@@ -50,6 +51,7 @@ class Polynomial:
         i = 0
         current_degree = self.degree()
         if current_degree == 0:
+            #if self.__coefficients[i] != 0:
             if self.__coefficients[i] < 0:
                 string += '- '
             string += str(abs(self.__coefficients[i]))
@@ -88,11 +90,11 @@ class Polynomial:
     def __call__(self, x):
         if isinstance(x, (int, float)):
             res = 0
-            for i, a in enumerate(self.__coefficients):
+            for i, a in enumerate(self.coeffs):
                 res += a * x ** (self.degree() - i)
             return res
         else:
-            raise TypeError('Invalid argument in call. Need list or tuple.')
+            raise TypeError('Invalid argument in call. Need int or float.')
 
     def __iter__(self):
         for a in self.__coefficients:
@@ -129,14 +131,32 @@ class Polynomial:
         else:
             raise TypeError('Invalid argument in setitem. For degree need: int >= 0. For value need: int.')
 
+    def __getattr__(self, arg):
+        if arg == 'coeffs':
+            return self.__coefficients
+        else:
+            raise AttributeError('Invalid attribute in getattr. Use <Polynomial_name>.coeffs.')
+
+    def __setattr__(self, arg, list_coeffs):
+        if arg == 'coeffs' or arg == '_Polynomial__coefficients':
+            if isinstance(list_coeffs, (list, tuple)):
+                if self.__is_list_correct(list(list_coeffs)):
+                    self.__dict__[arg] = list_coeffs
+                else:
+                    raise ValueError('Invalid argument in setattr. The list/tuple must store int.')
+            else:
+                raise TypeError('Invalid argument in setattr. Use list or tuple.')
+        else:
+            raise AttributeError('Invalid attribute in setattr. Use <Polynomial_name>.coeffs.')
+
     def __eq__(self, other):
         if isinstance(other, Polynomial):
-            return self.get_coefficients() == other.get_coefficients()
+            return self.coeffs == other.coeffs
         else:
             raise TypeError('Invalid argument in ==. Need Polynomial.')
 
     def __neg__(self):
-        return Polynomial([-a for a in self.__coefficients])
+        return Polynomial([-a for a in self.coeffs])
 
     def __pos__(self):
         return self
@@ -146,13 +166,13 @@ class Polynomial:
         longest_polynomial = ''
         max_len = 0
         min_len = 0
-        if len(poly1.get_coefficients()) >= len(poly2.get_coefficients()):
-            max_len = len(poly1.get_coefficients())
-            min_len = len(poly2.get_coefficients())
+        if len(poly1.coeffs) >= len(poly2.coeffs):
+            max_len = len(poly1.coeffs)
+            min_len = len(poly2.coeffs)
             longest_polynomial = '1'
         else:
-            max_len = len(poly2.get_coefficients())
-            min_len = len(poly1.get_coefficients())
+            max_len = len(poly2.coeffs)
+            min_len = len(poly1.coeffs)
             longest_polynomial = '2'
         differences = max_len - min_len
 
@@ -174,7 +194,7 @@ class Polynomial:
             res = [a + b for a, b in Polynomial.zip_two_polynomial(self, other)]
             return Polynomial(res)
         elif isinstance(other, int):
-            res = self.get_coefficients()
+            res = self.coeffs
             res[self.degree()] += other
             return Polynomial(res)
         else:
@@ -182,7 +202,7 @@ class Polynomial:
 
     def __radd__(self, other):
         if isinstance(other, int):
-            res = self.get_coefficients()
+            res = self.coeffs
             res[self.degree()] += other
             return Polynomial(res)
         else:
@@ -193,7 +213,7 @@ class Polynomial:
             res = [a - b for a, b in Polynomial.zip_two_polynomial(self, other)]
             return Polynomial(res)
         elif isinstance(other, int):
-            res = self.get_coefficients()
+            res = self.coeffs
             res[self.degree()] -= other
             return Polynomial(res)
         else:
@@ -201,7 +221,7 @@ class Polynomial:
 
     def __rsub__(self, other):
         if isinstance(other, int):
-            res = self.get_coefficients()
+            res = self.coeffs
             res[self.degree()] -= other
             return Polynomial(res)
         else:
@@ -211,22 +231,22 @@ class Polynomial:
         if isinstance(other, Polynomial):
             res_degree = self.degree() + other.degree()
             res = [0] * (res_degree + 1)
-            for index_a, a in enumerate(self.get_coefficients()):
-                for index_b, b in enumerate(other.get_coefficients()):
+            for index_a, a in enumerate(self.coeffs):
+                for index_b, b in enumerate(other.coeffs):
                     degree_a = self.degree() - index_a
                     degree_b = other.degree() - index_b
                     index_res = res_degree - (degree_a + degree_b)
                     res[index_res] = res[index_res] + a * b
             return Polynomial(res)
         elif isinstance(other, int):
-            res = [other * a for a in self.get_coefficients()]
+            res = [other * a for a in self.coeffs]
             return Polynomial(res)
         else:
             raise TypeError('Invalid argument in mul. Need Polynomial or int.')
 
     def __rmul__(self, other):
         if isinstance(other, int):
-            res = [other * a for a in self.get_coefficients()]
+            res = [other * a for a in self.coeffs]
             return Polynomial(res)
         else:
             raise TypeError('Invalid argument in rmul. Need Polynomial or int.')
