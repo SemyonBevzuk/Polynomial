@@ -227,9 +227,7 @@ class Polynomial:
 
     def __rsub__(self, other):
         if isinstance(other, int):
-            res = self.coeffs
-            res[self.degree()] -= other
-            return Polynomial(res)
+            return -self + other
         else:
             raise TypeError('Invalid argument in rsub. Need int.')
 

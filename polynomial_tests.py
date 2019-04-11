@@ -123,9 +123,15 @@ class TestPolynomialStr(unittest.TestCase):
         answer = str(p)
         self.assertEqual(correct_answer, answer)
 
-    def test_mixed_not_full_polynomial_degree_1(self):
+    def test_not_full_polynomial_degree_1(self):
         correct_answer = '- 10x'
         p = Polynomial([-10, 0])
+        answer = str(p)
+        self.assertEqual(correct_answer, answer)
+
+    def test_not_full_polynomial_degree_3(self):
+        correct_answer = '- 10x^3'
+        p = Polynomial([-10, 0, 0, 0])
         answer = str(p)
         self.assertEqual(correct_answer, answer)
 
@@ -455,9 +461,15 @@ class TestPolynomialSub(unittest.TestCase):
 
 class TestPolynomialRsub(unittest.TestCase):
     def test_const(self):
-        correct_answer = Polynomial([1, 0])
+        correct_answer = Polynomial([-1, 0])
         p1 = Polynomial([1, 1])
         answer = 1 - p1
+        self.assertEqual(correct_answer, answer)
+
+    def test_const_zero(self):
+        correct_answer = Polynomial([-1, -1])
+        p1 = Polynomial([1, 1])
+        answer = 0 - p1
         self.assertEqual(correct_answer, answer)
 
     def test_invalid_argument(self):
